@@ -41,8 +41,9 @@ def get_pinyin():
 
     text = data['text']
     tones = data.get('tones', 1)
+    combine = data.get('combine', 0)
 
-    if tones not in (0, 1, '0', '1'):
+    if tones not in (0, 1, '0', '1') or combine not in (0, 1, '0', '1'):
         response.status = 401
         return {'error': 'Illegal parameters'}
 
@@ -51,11 +52,13 @@ def get_pinyin():
     py_result = pinyin(text, style=style)
     py_list = [item[0] for item in py_result]
 
+    separator = '' if int(combine) == 1 else ' '
+
     response.content_type = 'application/json'
     return {
         'original': text,
         'pinyin': py_list,
-        'pinyin_str': ' '.join(py_list)
+        'pinyin_str': separator.join(py_list)
     }
 
 
