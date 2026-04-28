@@ -1,7 +1,32 @@
 import json
+import re
 import yaml
 from bottle import Bottle, request, response, run
 from pypinyin import pinyin, Style
+
+# 全角到半角映射表，包含常见中文字符及标点符号
+FULL2HALF = dict((i + 0xfee0, i) for i in range(0x21, 0x7f))
+FULL2HALF[0x3000] = 0x0020
+CH_PUNC_MAP = {
+    ord('，'): ord(','),
+    ord('。'): ord('.'),
+    ord('！'): ord('!'),
+    ord('？'): ord('?'),
+    ord('：'): ord(':'),
+    ord('；'): ord(';'),
+    ord('“'): ord('"'),
+    ord('”'): ord('"'),
+    ord('‘'): ord("'"),
+    ord('’'): ord("'"),
+    ord('（'): ord('('),
+    ord('）'): ord(')'),
+    ord('【'): ord('['),
+    ord('】'): ord(']'),
+    ord('《'): ord('<'),
+    ord('》'): ord('>'),
+    ord('、'): ord(','),
+}
+FULL2HALF.update(CH_PUNC_MAP)
 
 app = Bottle()
 
@@ -40,6 +65,9 @@ def get_pinyin():
         return {'error': 'Missing "text" field in the request payload'}
 
     text = data['text']
+    text = text.translate(FULL2HALF) # 标点全角转半角
+    # 对于不在映射表中且未经转换的其余特殊符号/字符（即非中文且非基础 ASCII 的部分），替换为空格
+    text = re.sub(r'[^\u4e00-\u9fa5\x20-\x7e]', ' ', text)
     tones = data.get('tones', 1)
     combine = data.get('combine', 0)
     mode = data.get('mode', 0)
