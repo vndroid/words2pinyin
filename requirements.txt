@@ -1,0 +1,4 @@
+bottle>=0.13,<0.14
+pypinyin
+PyYAML
+
