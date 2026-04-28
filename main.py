@@ -64,8 +64,8 @@ def get_pinyin():
         response.status = 400
         return {'error': 'Missing "text" field in the request payload'}
 
-    text = data['text']
-    text = text.translate(FULL2HALF) # 标点全角转半角
+    original_text = data['text']
+    text = original_text.translate(FULL2HALF) # 标点全角转半角
     # 对于不在映射表中且未经转换的其余特殊符号/字符（即非中文且非基础 ASCII 的部分），替换为空格
     text = re.sub(r'[^\u4e00-\u9fa5\x20-\x7e]', ' ', text)
     tones = data.get('tones', 1)
@@ -101,7 +101,7 @@ def get_pinyin():
 
     response.content_type = 'application/json'
     return {
-        'original': text,
+        'original': original_text,
         'pinyin': py_list,
         'pinyin_str': separator.join(py_list)
     }
