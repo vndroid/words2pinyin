@@ -40,9 +40,15 @@ def get_pinyin():
         return {'error': 'Missing "text" field in the request payload'}
 
     text = data['text']
+    tones = data.get('tones', 1)
+
+    if tones not in (0, 1, '0', '1'):
+        response.status = 401
+        return {'error': 'Illegal parameters'}
 
     # 转换为拼音
-    py_result = pinyin(text, style=Style.TONE)
+    style = Style.NORMAL if int(tones) == 0 else Style.TONE
+    py_result = pinyin(text, style=style)
     py_list = [item[0] for item in py_result]
 
     response.content_type = 'application/json'
