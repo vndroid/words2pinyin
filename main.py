@@ -64,6 +64,14 @@ def get_pinyin():
         response.status = 400
         return {'error': 'Missing "text" field in the request payload'}
 
+    if not isinstance(data['text'], str):
+        response.status = 400
+        return {'error': 'The text field must be a string'}
+
+    if len(data['text']) > 5000:
+        response.status = 413
+        return {'error': 'Payload Too Large: Text exceeds maximum allowed length (5000 characters)'}
+
     allowed_params = {
         'text', 'tones', 'combine', 'compact',
         'lowercase', 'uppercase', 'camelcase', 'filter'
@@ -141,6 +149,6 @@ if __name__ == '__main__':
 
     # 判断是否为生产环境 (默认开发环境)
     env = os.environ.get('APP_ENV', 'development')
-    is_reload = env != 'production'
+    is_dev = env != 'production'
 
-    run(app, host='0.0.0.0', port=8080, server='gunicorn', workers=workers, reload=is_reload)
+    run(app, host='0.0.0.0', port=8080, server='gunicorn', workers=workers, reload=is_dev, debug=is_dev)
