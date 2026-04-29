@@ -26,6 +26,26 @@ APP_ENV=production python3 main.py
 ### Note on Unsupported Parameters
 Using any parameter key not listed above will trigger an HTTP `400` Error: `Detected unsupported parameters`.
 
+### Testing with cURL
+
+**JSON Payload Example:**
+```bash
+curl -X POST http://localhost:8080/pinyin \
+    -H "Content-Type: application/json" \
+    -d '{"text": "你好世界", "tones": 0, "combine": 1, "compact": 1}'
+```
+
+**YAML Payload Example:**
+```bash
+curl -X POST http://localhost:8080/pinyin \
+    -H "Content-Type: text/yaml" \
+    -d "
+text: 你好世界
+tones: 0
+combine: 1
+compact: 1"
+```
+
 ### Response Format
 
 By default (`filter=0`), the API responds with:
