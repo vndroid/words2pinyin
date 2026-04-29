@@ -5,7 +5,7 @@ from bottle import Bottle, request, response, run
 from pypinyin import pinyin, Style
 
 # 全角到半角映射表，包含常见中文字符及标点符号
-FULL2HALF = dict((i + 0xfee0, i) for i in range(0x21, 0x7f))
+FULL2HALF = {i + 0xfee0: i for i in range(0x21, 0x7f)}
 FULL2HALF[0x3000] = 0x0020
 CH_PUNC_MAP = {
     ord('，'): ord(','),
@@ -33,9 +33,8 @@ app = Bottle()
 
 @app.post('/pinyin')
 def get_pinyin():
-    content_type = request.content_type
+    content_type = request.content_type or ''
     body = request.body.read().decode('utf-8')
-    data = None
 
     if 'application/json' in content_type:
         try:
@@ -64,13 +63,16 @@ def get_pinyin():
         response.status = 400
         return {'error': 'Missing "text" field in the request payload'}
 
-    allowed_params = {'text', 'tones', 'combine', 'compact', 'lowercase', 'uppercase', 'camelcase', 'filter'}
+    allowed_params = {
+        'text', 'tones', 'combine', 'compact',
+        'lowercase', 'uppercase', 'camelcase', 'filter'
+    }
     if any(key not in allowed_params for key in data.keys()):
         response.status = 400
         return {'error': 'Detected unsupported parameters'}
 
     original_text = data['text']
-    text = original_text.translate(FULL2HALF) # 标点全角转半角
+    text = original_text.translate(FULL2HALF)  # 标点全角转半角
     # 对于不在映射表中且未经转换的其余特殊符号/字符（即非中文且非基础 ASCII 的部分），替换为空格
     text = re.sub(r'[^\u4e00-\u9fa5\x20-\x7e]', ' ', text)
     tones = data.get('tones', 1)
@@ -90,7 +92,9 @@ def get_pinyin():
     if filter_val == 'none':
         filter_val = 0
 
-    if tones not in (0, 1, '0', '1') or combine not in (0, 1, '0', '1') or compact not in (0, 1, 2, '0', '1', '2'):
+    if (tones not in (0, 1, '0', '1') or
+        combine not in (0, 1, '0', '1') or
+        compact not in (0, 1, 2, '0', '1', '2')):
         response.status = 400
         return {'error': 'Illegal parameter values'}
 
@@ -102,14 +106,20 @@ def get_pinyin():
     style = Style.NORMAL if int(tones) == 0 else Style.TONE
     py_result = pinyin(text, style=style)
 
+    # 将包含空格的英文等整块结果按空格进行拆分，保证单词与空格分离
+    raw_list = [item[0] for item in py_result]
+    py_list_raw = []
+    for item in raw_list:
+        py_list_raw.extend(re.findall(r'\S+|\s+', item))
+
     # 处理拼音大小写模式
     compact = int(compact)
     if compact == 1:
-        py_list = [item[0].upper() for item in py_result]
+        py_list = [item.upper() for item in py_list_raw]
     elif compact == 2:
-        py_list = [item[0].capitalize() for item in py_result]
+        py_list = [item.capitalize() for item in py_list_raw]
     else:
-        py_list = [item[0].lower() for item in py_result]
+        py_list = [item.lower() for item in py_list_raw]
 
     separator = '' if int(combine) == 1 else ' '
 
@@ -120,7 +130,8 @@ def get_pinyin():
     }
 
     if filter_val not in (0, '0'):
-        result = {filter_val: result[filter_val]}
+        filter_key = str(filter_val)
+        result = {filter_key: result[filter_key]}
 
     response.content_type = 'application/json'
     return result
