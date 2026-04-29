@@ -102,8 +102,8 @@ def get_pinyin():
     response.content_type = 'application/json'
     return {
         'original': original_text,
-        'pinyin': py_list,
-        'pinyin_str': separator.join(py_list)
+        'separate': py_list,
+        'pinyin': separator.join(py_list)
     }
 
 
