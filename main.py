@@ -64,6 +64,11 @@ def get_pinyin():
         response.status = 400
         return {'error': 'Missing "text" field in the request payload'}
 
+    allowed_params = {'text', 'tones', 'combine', 'compact', 'lowercase', 'uppercase', 'camelcase'}
+    if any(key not in allowed_params for key in data.keys()):
+        response.status = 402
+        return {'error': 'Detected unsupported parameters'}
+
     original_text = data['text']
     text = original_text.translate(FULL2HALF) # 标点全角转半角
     # 对于不在映射表中且未经转换的其余特殊符号/字符（即非中文且非基础 ASCII 的部分），替换为空格
@@ -82,7 +87,7 @@ def get_pinyin():
 
     if tones not in (0, 1, '0', '1') or combine not in (0, 1, '0', '1') or compact not in (0, 1, 2, '0', '1', '2'):
         response.status = 401
-        return {'error': 'Illegal parameters'}
+        return {'error': 'Illegal parameter values'}
 
     # 转换为拼音
     style = Style.NORMAL if int(tones) == 0 else Style.TONE
