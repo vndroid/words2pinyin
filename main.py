@@ -70,17 +70,17 @@ def get_pinyin():
     text = re.sub(r'[^\u4e00-\u9fa5\x20-\x7e]', ' ', text)
     tones = data.get('tones', 1)
     combine = data.get('combine', 0)
-    mode = data.get('mode', 0)
+    compact = data.get('compact', 0)
 
-    # 兼容通过独立参数或 mode 值传入的写法
-    if data.get('lowercase') is not None or mode == 'lowercase':
-        mode = 0
-    elif data.get('uppercase') is not None or mode == 'uppercase':
-        mode = 1
-    elif data.get('camelcase') is not None or mode == 'camelcase':
-        mode = 2
+    # 兼容通过独立参数或 compact 值传入的写法
+    if data.get('lowercase') is not None or compact == 'lowercase':
+        compact = 0
+    elif data.get('uppercase') is not None or compact == 'uppercase':
+        compact = 1
+    elif data.get('camelcase') is not None or compact == 'camelcase':
+        compact = 2
 
-    if tones not in (0, 1, '0', '1') or combine not in (0, 1, '0', '1') or mode not in (0, 1, 2, '0', '1', '2'):
+    if tones not in (0, 1, '0', '1') or combine not in (0, 1, '0', '1') or compact not in (0, 1, 2, '0', '1', '2'):
         response.status = 401
         return {'error': 'Illegal parameters'}
 
@@ -89,10 +89,10 @@ def get_pinyin():
     py_result = pinyin(text, style=style)
 
     # 处理拼音大小写模式
-    mode = int(mode)
-    if mode == 1:
+    compact = int(compact)
+    if compact == 1:
         py_list = [item[0].upper() for item in py_result]
-    elif mode == 2:
+    elif compact == 2:
         py_list = [item[0].capitalize() for item in py_result]
     else:
         py_list = [item[0].lower() for item in py_result]
