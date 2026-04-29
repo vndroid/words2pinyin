@@ -142,4 +142,9 @@ if __name__ == '__main__':
     # 获取 CPU 核心数，并通常以 2 * cpu_count + 1 作为较佳的新工作进程数
     cpu_count = os.cpu_count() or 1
     workers = cpu_count * 2 + 1
-    run(app, host='0.0.0.0', port=8080, server='gunicorn', workers=workers, reload=True)
+
+    # 判断是否为生产环境 (默认开发环境)
+    env = os.environ.get('APP_ENV', 'development')
+    is_reload = env != 'production'
+
+    run(app, host='0.0.0.0', port=8080, server='gunicorn', workers=workers, reload=is_reload)
