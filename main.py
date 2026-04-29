@@ -64,7 +64,7 @@ def get_pinyin():
         response.status = 400
         return {'error': 'Missing "text" field in the request payload'}
 
-    allowed_params = {'text', 'tones', 'combine', 'compact', 'lowercase', 'uppercase', 'camelcase'}
+    allowed_params = {'text', 'tones', 'combine', 'compact', 'lowercase', 'uppercase', 'camelcase', 'filter'}
     if any(key not in allowed_params for key in data.keys()):
         response.status = 402
         return {'error': 'Detected unsupported parameters'}
@@ -76,6 +76,7 @@ def get_pinyin():
     tones = data.get('tones', 1)
     combine = data.get('combine', 0)
     compact = data.get('compact', 0)
+    filter_val = data.get('filter', 0)
 
     # 兼容通过独立参数或 compact 值传入的写法
     if data.get('lowercase') is not None or compact == 'lowercase':
@@ -88,6 +89,10 @@ def get_pinyin():
     if tones not in (0, 1, '0', '1') or combine not in (0, 1, '0', '1') or compact not in (0, 1, 2, '0', '1', '2'):
         response.status = 401
         return {'error': 'Illegal parameter values'}
+
+    if filter_val not in (0, '0', 'original', 'separate', 'pinyin'):
+        response.status = 400
+        return {'error': 'Nonexistent request value'}
 
     # 转换为拼音
     style = Style.NORMAL if int(tones) == 0 else Style.TONE
@@ -104,12 +109,17 @@ def get_pinyin():
 
     separator = '' if int(combine) == 1 else ' '
 
-    response.content_type = 'application/json'
-    return {
+    result = {
         'original': original_text,
         'separate': py_list,
         'pinyin': separator.join(py_list)
     }
+
+    if filter_val not in (0, '0'):
+        result = {filter_val: result[filter_val]}
+
+    response.content_type = 'application/json'
+    return result
 
 
 if __name__ == '__main__':
