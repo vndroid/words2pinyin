@@ -72,6 +72,10 @@ def get_pinyin():
         response.status = 413
         return {'error': 'Payload Too Large: Text exceeds maximum allowed length (5000 characters)'}
 
+    if re.search(r'[\u3040-\u309F\u30A0-\u30FF\uAC00-\uD7AF\u1100-\u11FF\u3130-\u318F]', data['text']):
+        response.status = 400
+        return {'error': 'Text contains unsupported Japanese or Korean characters'}
+
     allowed_params = {
         'text', 'tones', 'combine', 'compact',
         'lowercase', 'uppercase', 'camelcase', 'filter'
