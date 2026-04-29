@@ -86,6 +86,10 @@ def get_pinyin():
     elif data.get('camelcase') is not None or compact == 'camelcase':
         compact = 2
 
+    # 为 filter=0 增加 none 兼容选项
+    if filter_val == 'none':
+        filter_val = 0
+
     if tones not in (0, 1, '0', '1') or combine not in (0, 1, '0', '1') or compact not in (0, 1, 2, '0', '1', '2'):
         response.status = 400
         return {'error': 'Illegal parameter values'}
