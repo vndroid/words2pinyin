@@ -66,7 +66,7 @@ def get_pinyin():
 
     allowed_params = {'text', 'tones', 'combine', 'compact', 'lowercase', 'uppercase', 'camelcase', 'filter'}
     if any(key not in allowed_params for key in data.keys()):
-        response.status = 402
+        response.status = 400
         return {'error': 'Detected unsupported parameters'}
 
     original_text = data['text']
@@ -87,7 +87,7 @@ def get_pinyin():
         compact = 2
 
     if tones not in (0, 1, '0', '1') or combine not in (0, 1, '0', '1') or compact not in (0, 1, 2, '0', '1', '2'):
-        response.status = 401
+        response.status = 400
         return {'error': 'Illegal parameter values'}
 
     if filter_val not in (0, '0', 'original', 'separate', 'pinyin'):
