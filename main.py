@@ -81,7 +81,7 @@ def get_pinyin():
         'text', 'tones', 'combine', 'compact',
         'lowercase', 'uppercase', 'camelcase', 'filter'
     }
-    if any(key not in allowed_params for key in data.keys()):
+    if any(key not in allowed_params for key in data):
         response.status = 400
         return {'error': 'Detected unsupported parameters'}
 
