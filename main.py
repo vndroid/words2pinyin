@@ -148,9 +148,11 @@ def get_pinyin():
 
 
 if __name__ == '__main__':
-    # 获取 CPU 核心数，并通常以 2 * cpu_count + 1 作为较佳的新工作进程数
+    # 获取 CPU 核心数，并通常以 2 * cpu_count + 1 作为较佳的新工作进程数，优先使用环境变量 APP_WORKERS
     cpu_count = os.cpu_count() or 1
-    workers = cpu_count * 2 + 1
+    workers = int(os.environ.get('APP_WORKERS', cpu_count * 2 + 1))
+    if workers < 1:
+        raise ValueError(f'APP_WORKERS must be >= 1, got {workers}')
 
     # 判断是否为生产环境 (默认开发环境)
     env = os.environ.get('APP_ENV', 'development')

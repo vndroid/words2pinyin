@@ -13,6 +13,9 @@ uv run main.py
 
 # Run in production mode
 APP_ENV=production uv run main.py
+
+# Specify the number of gunicorn workers (default: 2 * CPU cores + 1)
+APP_ENV=production APP_WORKERS=4 uv run main.py
 ```
 
 Other useful commands:
