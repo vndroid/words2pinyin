@@ -1,9 +1,10 @@
 import json
 import os
 import re
+
 import yaml
 from bottle import Bottle, request, response, run
-from pypinyin import pinyin, Style
+from pypinyin import Style, pinyin
 
 # 全角到半角映射表，包含常见中文字符及标点符号
 FULL2HALF = {i + 0xfee0: i for i in range(0x21, 0x7f)}
