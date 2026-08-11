@@ -2,8 +2,25 @@
 
 ## Environment
 
+Requires [uv](https://docs.astral.sh/uv/) and Python >= 3.13 (uv will download it automatically if missing).
+
 ```bash
-APP_ENV=production python3 main.py
+# Install dependencies (creates .venv from uv.lock)
+uv sync
+
+# Run in development mode (auto-reload + debug)
+uv run main.py
+
+# Run in production mode
+APP_ENV=production uv run main.py
+```
+
+Other useful commands:
+
+```bash
+uv add <package>      # add a dependency
+uv lock --upgrade     # upgrade locked dependency versions
+uv run ruff check .   # lint
 ```
 
 ## API Endpoint
