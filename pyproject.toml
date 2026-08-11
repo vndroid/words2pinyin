@@ -1,0 +1,7 @@
+[project]
+name = "words2pinyin"
+version = "0.1.0"
+requires-python = "==3.13.13"
+dependencies = [
+    "ruff>=0.16.2",
+]
